@@ -27,6 +27,14 @@ def computador_escolhe_jogada(n, m):
     return limite
 
 
+def computador_escolhe_jogada_d(n, m):
+    limite = min(m, n)
+    for retirada in range(1, limite + 1):
+        if (n - retirada) % (m + 1) != 0:
+            return retirada
+    return 1
+
+
 def usuario_escolhe_jogada(n, m):
     limite = min(m, n)
     while True:
@@ -58,9 +66,12 @@ def anunciar_inicio(jogador_inicial):
         print("\nVocê começa!\n")
 
 
-def executar_turno(n, m, jogador_atual):
+def executar_turno(n, m, jogador_atual, usar_jogada_d=False):
     if jogador_atual == COMPUTADOR:
-        retirada = computador_escolhe_jogada(n, m)
+        if usar_jogada_d:
+            retirada = computador_escolhe_jogada_d(n, m)
+        else:
+            retirada = computador_escolhe_jogada(n, m)
         print(f"O computador retirou {retirada} peça(s).")
     else:
         retirada = usuario_escolhe_jogada(n, m)
@@ -84,10 +95,22 @@ def exibir_resultado_final(vencedor):
 def partida():
     n, m = obter_configuracao_partida()
     jogador_atual = definir_primeiro_jogador(n, m)
+    jogadas_seguidas = 0
+    proxima_jogada_d = False
     anunciar_inicio(jogador_atual)
 
     while n > 0:
-        retirada = executar_turno(n, m, jogador_atual)
+        retirada = executar_turno(n, m, jogador_atual, proxima_jogada_d)
+        if jogador_atual == COMPUTADOR:
+            proxima_jogada_d = False
+        elif retirada == 1:
+            jogadas_seguidas += 1
+            if jogadas_seguidas >= 2:
+                proxima_jogada_d = True
+                jogadas_seguidas = 0
+        else:
+            jogadas_seguidas = 0
+
         n -= retirada
 
         if n == 0:
